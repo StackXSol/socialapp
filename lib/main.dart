@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:socialapp/screens/login.dart';
+import 'package:socialapp/screens/register.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,15 +14,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      // theme: ThemeData(
-      //   primarySwatch: Colors.blue,
-      //   textTheme: TextTheme(bodyText2: TextStyle(color: Colors.white)),
-      // ),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        textTheme: TextTheme(bodyText2: TextStyle(color: Colors.grey)),
+      ),
       routes: {
         '/login': (context) => const LogIn(),
-        // '/signup': (context) => const SignUp(),
+        '/register': (context) => const Register(),
       },
-      initialRoute: '/login',
+      initialRoute: '/register',
     );
   }
 }

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:socialapp/widgets.dart';
 
-class LogIn extends StatefulWidget {
-  const LogIn({Key? key}) : super(key: key);
+class Register extends StatefulWidget {
+  const Register({Key? key}) : super(key: key);
 
   @override
-  State<LogIn> createState() => _LogInState();
+  State<Register> createState() => _RegisterState();
 }
 
-class _LogInState extends State<LogIn> {
+class _RegisterState extends State<Register> {
   @override
   bool _isObscure = true;
 
@@ -22,14 +22,19 @@ class _LogInState extends State<LogIn> {
                 height: getheight(context, 131),
               ),
               Text(
-                "Social App",
+                "Welcome",
                 style: TextStyle(
-                    fontFamily: "Aviator",
-                    fontSize: getheight(context, 95),
-                    color: Colors.black),
+                    fontSize: getheight(context, 64), color: Colors.black),
               ),
               SizedBox(
-                height: getheight(context, 124),
+                height: getheight(context, 132),
+              ),
+              Text(
+                "Register your details",
+                style: TextStyle(fontSize: getheight(context, 36)),
+              ),
+              SizedBox(
+                height: getheight(context, 60),
               ),
               Container(
                 padding:
@@ -41,14 +46,34 @@ class _LogInState extends State<LogIn> {
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(5))),
                   prefixIcon: IconButton(
-                    icon: Icon(Icons.email_sharp),
+                    icon: Icon(Icons.person),
                     onPressed: null,
                   ),
-                  hintText: "Your Email Address",
+                  hintText: "Your Name",
                 )),
               ),
               SizedBox(
-                height: getheight(context, 58),
+                height: getheight(context, 50),
+              ),
+              Container(
+                padding:
+                    EdgeInsets.symmetric(horizontal: getwidth(context, 113)),
+                child: TextField(
+                    decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        fillColor: Colors.white,
+                        filled: true,
+                        hintText: "Your Email Address",
+                        prefixIcon: IconButton(
+                          icon: Icon(Icons.email),
+                          onPressed: null,
+                        ))),
+              ),
+              SizedBox(
+                height: getheight(context, 50),
               ),
               Container(
                 padding:
@@ -61,11 +86,10 @@ class _LogInState extends State<LogIn> {
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(5))),
                         fillColor: Colors.white,
-                        filled: true,
                         hintText: "Your Password",
                         prefixIcon: IconButton(
                           icon: Icon(
-                            Icons.key_outlined,
+                            Icons.key,
                           ),
                           onPressed: null,
                         ))),
@@ -75,17 +99,17 @@ class _LogInState extends State<LogIn> {
               ),
               GestureDetector(
                 onTap: () {
-                  // Sign In
+                  // Register
                 },
                 child: Container(
-                  height: getheight(context, 79),
+                  height: getheight(context, 75),
                   width: getwidth(context, 300),
                   decoration: BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(5)),
                   child: Center(
                       child: Text(
-                    "Sign In",
+                    "Register",
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -94,16 +118,19 @@ class _LogInState extends State<LogIn> {
                 ),
               ),
               SizedBox(
-                height: getheight(context, 30),
+                height: getheight(context, 20),
               ),
-              Text(
-                "OR",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: getheight(context, 24)),
+              GestureDetector(
+                onTap: () {
+                  // Show me how
+                },
+                child: Text(
+                  "Show me how",
+                  style: TextStyle(fontSize: getheight(context, 20)),
+                ),
               ),
               SizedBox(
-                height: getheight(context, 44),
+                height: getheight(context, 50),
               ),
               GestureDetector(
                 onTap: () {
@@ -117,58 +144,10 @@ class _LogInState extends State<LogIn> {
                         borderRadius: BorderRadius.circular(5)),
                     child: Center(
                         child: Text(
-                      "Sign in with your google account",
+                      "Sign up with your google account",
                       style: TextStyle(fontSize: getheight(context, 20)),
                     ))),
               ),
-              SizedBox(
-                height: getheight(context, 69),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Forget password? ",
-                    style: TextStyle(fontSize: getheight(context, 20)),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      // forgot password
-                    },
-                    child: Text(
-                      "Click me",
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: getheight(context, 20)),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 59,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Don't have an google account? ",
-                    style: TextStyle(fontSize: getheight(context, 20)),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      // register google account
-                    },
-                    child: Text(
-                      "Register",
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: getheight(context, 20)),
-                    ),
-                  ),
-                ],
-              )
             ],
           ),
         ),
