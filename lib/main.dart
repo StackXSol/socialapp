@@ -1,15 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:socialapp/backend-data.dart';
 import 'package:socialapp/screens/login.dart';
 import 'package:socialapp/screens/register.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+late current_user appuser;
 
-  // This widget is the root of your application.
+class MyApp extends StatelessWidget {
+  MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,7 +27,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LogIn(),
         '/register': (context) => const Register(),
       },
-      initialRoute: '/register',
+      initialRoute: '/login',
     );
   }
 }
