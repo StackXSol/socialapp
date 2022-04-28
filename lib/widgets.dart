@@ -8,3 +8,5 @@ double getheight(context, value) {
 double getwidth(context, value) {
   return MediaQuery.of(context).size.width * (value / 832);
 }
+
+Color BlueColor = Color(0xFF1E315B);

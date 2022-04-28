@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:socialapp/screens/contact_list.dart';
+import 'package:socialapp/screens/homepage.dart';
 import 'package:socialapp/screens/login.dart';
+import 'package:socialapp/screens/navbar.dart';
+import 'package:socialapp/screens/recent_chats.dart';
 import 'package:socialapp/screens/register.dart';
 
 void main() {
@@ -21,8 +25,12 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LogIn(),
         '/register': (context) => const Register(),
+        '/homepage': (context) => const HomePage(),
+        '/navbar': (context) => const MainNav(),
+        '/recentchats': (context) => const RecentChats(),
+        '/contactlist': (context) => const ContactList(),
       },
-      initialRoute: '/register',
+      initialRoute: '/navbar',
     );
   }
 }
