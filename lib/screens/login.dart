@@ -1,4 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/button_list.dart';
+import 'package:flutter_signin_button/button_view.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:socialapp/backend-data.dart';
+import 'package:socialapp/main.dart';
 import 'package:socialapp/widgets.dart';
 
 class LogIn extends StatefulWidget {
@@ -11,6 +18,7 @@ class LogIn extends StatefulWidget {
 class _LogInState extends State<LogIn> {
   @override
   bool _isObscure = true;
+  String email = "", pass = "";
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,18 +42,21 @@ class _LogInState extends State<LogIn> {
               Container(
                 padding:
                     EdgeInsets.symmetric(horizontal: getwidth(context, 113)),
-                child: const TextField(
+                child: TextField(
+                    onChanged: (val) {
+                      email = val;
+                    },
                     decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
-                  prefixIcon: IconButton(
-                    icon: Icon(Icons.email_sharp),
-                    onPressed: null,
-                  ),
-                  hintText: "Your Email Address",
-                )),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5))),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5))),
+                      prefixIcon: IconButton(
+                        icon: Icon(Icons.email_sharp),
+                        onPressed: null,
+                      ),
+                      hintText: "Your Email Address",
+                    )),
               ),
               SizedBox(
                 height: getheight(context, 58),
@@ -54,6 +65,9 @@ class _LogInState extends State<LogIn> {
                 padding:
                     EdgeInsets.symmetric(horizontal: getwidth(context, 113)),
                 child: TextField(
+                    onChanged: (val) {
+                      pass = val;
+                    },
                     obscureText: _isObscure,
                     decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
@@ -74,8 +88,22 @@ class _LogInState extends State<LogIn> {
                 height: getheight(context, 58),
               ),
               GestureDetector(
-                onTap: () {
-                  // Sign In
+                onTap: () async {
+                  if (email != "" && pass != "") {
+                    FirebaseAuth.instance
+                        .signInWithEmailAndPassword(
+                            email: email, password: pass)
+                        .then((value) async {
+                      dynamic key = await FirebaseFirestore.instance
+                          .collection("Users")
+                          .doc(FirebaseAuth.instance.currentUser!.uid)
+                          .get();
+                      appuser = current_user(
+                          name: key.data()["Email"],
+                          email: email,
+                          uid: FirebaseAuth.instance.currentUser!.uid);
+                    });
+                  }
                 },
                 child: Container(
                   height: getheight(context, 79),
@@ -105,21 +133,26 @@ class _LogInState extends State<LogIn> {
               SizedBox(
                 height: getheight(context, 44),
               ),
-              GestureDetector(
-                onTap: () {
-                  //Sign in with google
+              SignInButton(
+                Buttons.Google,
+                text: "Sign in with Google",
+                onPressed: () async {
+                  GoogleSignIn gs = GoogleSignIn(scopes: ['email']);
+                  GoogleSignInAccount? google_user = await gs.signIn();
+                  GoogleSignInAuthentication googleAuth =
+                      await google_user!.authentication;
+                  final AuthCredential credential =
+                      GoogleAuthProvider.credential(
+                          idToken: googleAuth.idToken,
+                          accessToken: googleAuth.accessToken);
+                  final UserCredential authResult = await FirebaseAuth.instance
+                      .signInWithCredential(credential);
+                  User? user = authResult.user;
+                  appuser = current_user(
+                      name: user!.displayName as String,
+                      email: email,
+                      uid: user.uid);
                 },
-                child: Container(
-                    height: getheight(context, 60),
-                    width: getwidth(context, 600),
-                    decoration: BoxDecoration(
-                        border: Border.all(color: Colors.blue, width: 2),
-                        borderRadius: BorderRadius.circular(5)),
-                    child: Center(
-                        child: Text(
-                      "Sign in with your google account",
-                      style: TextStyle(fontSize: getheight(context, 20)),
-                    ))),
               ),
               SizedBox(
                 height: getheight(context, 69),
@@ -133,7 +166,10 @@ class _LogInState extends State<LogIn> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // forgot password
+                      if (email != "") {
+                        FirebaseAuth.instance
+                            .sendPasswordResetEmail(email: email);
+                      }
                     },
                     child: Text(
                       "Click me",
@@ -157,7 +193,7 @@ class _LogInState extends State<LogIn> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // register google account
+                      Navigator.pushNamed(context, "/register");
                     },
                     child: Text(
                       "Register",

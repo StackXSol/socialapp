@@ -1,4 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/button_list.dart';
+import 'package:flutter_signin_button/button_view.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/widgets.dart';
 
 class Register extends StatefulWidget {
@@ -11,6 +16,8 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   @override
   bool _isObscure = true;
+
+  late String name = "", email = "", pass = "";
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,18 +46,20 @@ class _RegisterState extends State<Register> {
               Container(
                 padding:
                     EdgeInsets.symmetric(horizontal: getwidth(context, 113)),
-                child: const TextField(
-                    decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
-                  prefixIcon: IconButton(
-                    icon: Icon(Icons.person),
-                    onPressed: null,
+                child: TextField(
+                  onChanged: ((value) => name = value),
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5))),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5))),
+                    prefixIcon: IconButton(
+                      icon: Icon(Icons.person),
+                      onPressed: null,
+                    ),
+                    hintText: "Your Name",
                   ),
-                  hintText: "Your Name",
-                )),
+                ),
               ),
               SizedBox(
                 height: getheight(context, 50),
@@ -59,6 +68,7 @@ class _RegisterState extends State<Register> {
                 padding:
                     EdgeInsets.symmetric(horizontal: getwidth(context, 113)),
                 child: TextField(
+                    onChanged: ((value) => email = value),
                     decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(5))),
@@ -80,6 +90,9 @@ class _RegisterState extends State<Register> {
                     EdgeInsets.symmetric(horizontal: getwidth(context, 113)),
                 child: TextField(
                     obscureText: _isObscure,
+                    onChanged: (val) {
+                      pass = val;
+                    },
                     decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(5))),
@@ -99,7 +112,24 @@ class _RegisterState extends State<Register> {
               ),
               GestureDetector(
                 onTap: () {
-                  // Register
+                  if (name != "" && email != "" && pass != "") {
+                    FirebaseAuth.instance
+                        .createUserWithEmailAndPassword(
+                            email: email, password: pass)
+                        .then(
+                          (value) => FirebaseFirestore.instance
+                              .collection("Users")
+                              .doc(FirebaseAuth.instance.currentUser!.uid)
+                              .set(
+                            {
+                              "Name": name,
+                              "Email": email,
+                              "uid": FirebaseAuth.instance.currentUser!.uid
+                            },
+                            SetOptions(merge: true),
+                          ),
+                        );
+                  }
                 },
                 child: Container(
                   height: getheight(context, 75),
@@ -120,33 +150,45 @@ class _RegisterState extends State<Register> {
               SizedBox(
                 height: getheight(context, 20),
               ),
-              GestureDetector(
-                onTap: () {
-                  // Show me how
-                },
-                child: Text(
-                  "Show me how",
-                  style: TextStyle(fontSize: getheight(context, 20)),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: () {
+              //     // Show me how
+              //   },
+              //   child: Text(
+              //     "Show me how",
+              //     style: TextStyle(fontSize: getheight(context, 20)),
+              //   ),
+              // ),
               SizedBox(
                 height: getheight(context, 50),
               ),
-              GestureDetector(
-                onTap: () {
-                  //Sign in with google
+              SignInButton(
+                Buttons.Google,
+                text: "Sign up with Google",
+                onPressed: () async {
+                  GoogleSignIn gs = GoogleSignIn(scopes: ['email']);
+                  GoogleSignInAccount? google_user = await gs.signIn();
+                  GoogleSignInAuthentication googleAuth =
+                      await google_user!.authentication;
+                  final AuthCredential credential =
+                      GoogleAuthProvider.credential(
+                          idToken: googleAuth.idToken,
+                          accessToken: googleAuth.accessToken);
+                  final UserCredential authResult = await FirebaseAuth.instance
+                      .signInWithCredential(credential);
+                  User? user = authResult.user;
+                  FirebaseFirestore.instance
+                      .collection("Users")
+                      .doc(user!.uid)
+                      .set(
+                    {
+                      "Name": user.displayName,
+                      "Email": user.email,
+                      "uid": user.uid
+                    },
+                    SetOptions(merge: true),
+                  );
                 },
-                child: Container(
-                    height: getheight(context, 60),
-                    width: getwidth(context, 600),
-                    decoration: BoxDecoration(
-                        border: Border.all(color: Colors.blue, width: 2),
-                        borderRadius: BorderRadius.circular(5)),
-                    child: Center(
-                        child: Text(
-                      "Sign up with your google account",
-                      style: TextStyle(fontSize: getheight(context, 20)),
-                    ))),
               ),
             ],
           ),
