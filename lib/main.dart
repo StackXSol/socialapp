@@ -5,6 +5,7 @@ import 'package:socialapp/screens/contact_list.dart';
 import 'package:socialapp/screens/homepage.dart';
 import 'package:socialapp/screens/login.dart';
 import 'package:socialapp/screens/navbar.dart';
+import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/screens/recent_chats.dart';
 import 'package:socialapp/screens/register.dart';
 
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         '/navbar': (context) => const MainNav(),
         '/recentchats': (context) => const RecentChats(),
         '/contactlist': (context) => const ContactList(),
+        '/profile': (context) => const Profile(),
       },
       initialRoute: '/navbar',
     );
