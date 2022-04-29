@@ -8,6 +8,7 @@ import 'package:socialapp/screens/navbar.dart';
 import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/screens/recent_chats.dart';
 import 'package:socialapp/screens/register.dart';
+import 'package:socialapp/screens/chat.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/recentchats': (context) => const RecentChats(),
         '/contactlist': (context) => const ContactList(),
         '/profile': (context) => const Profile(),
+        '/chat': (context) => const MainChat(),
       },
       initialRoute: '/navbar',
     );
