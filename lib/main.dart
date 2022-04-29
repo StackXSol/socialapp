@@ -1,11 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
+import 'package:socialapp/backend-data.dart';
 import 'package:socialapp/screens/contact_list.dart';
 import 'package:socialapp/screens/homepage.dart';
-=======
-import 'package:socialapp/backend-data.dart';
->>>>>>> dd493bf1608a21b64d3e93dfebcee427dc7e645f
 import 'package:socialapp/screens/login.dart';
 import 'package:socialapp/screens/navbar.dart';
 import 'package:socialapp/screens/recent_chats.dart';
@@ -36,13 +33,9 @@ class MyApp extends StatelessWidget {
         '/homepage': (context) => const HomePage(),
         '/navbar': (context) => const MainNav(),
         '/recentchats': (context) => const RecentChats(),
-        '/contactlist': (context) => const ContactList(),
+        '/contactlist': (context) => const ContactList()
       },
-<<<<<<< HEAD
-      initialRoute: '/navbar',
-=======
       initialRoute: '/login',
->>>>>>> dd493bf1608a21b64d3e93dfebcee427dc7e645f
     );
   }
 }
