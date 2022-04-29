@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:socialapp/screens/contact_list.dart';
+import 'package:socialapp/screens/helper.dart';
 import 'package:socialapp/screens/homepage.dart';
 import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/screens/recent_chats.dart';
@@ -21,6 +22,7 @@ class _MainNavState extends State<MainNav> {
     ContactList(),
     HomePage(),
     Profile(),
+    HelperPage()
   ];
 
   @override
