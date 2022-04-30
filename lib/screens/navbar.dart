@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:socialapp/screens/contact_list.dart';
+import 'package:socialapp/screens/helper.dart';
 import 'package:socialapp/screens/homepage.dart';
+import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/screens/recent_chats.dart';
 import 'package:socialapp/widgets.dart';
 // import 'package:socialapp/screens/contact_list.dart';
@@ -14,12 +16,13 @@ class MainNav extends StatefulWidget {
 }
 
 class _MainNavState extends State<MainNav> {
-  int _index = 0;
+  int _index = 2;
   final List<Widget> screens = [
-    HomePage(),
     RecentChats(),
-    ContactList()
-    // ProfilePage(),
+    ContactList(),
+    HomePage(),
+    Profile(),
+    HelperPage()
   ];
 
   @override
@@ -47,6 +50,9 @@ class _MainNavState extends State<MainNav> {
               BottomNavigationBarItem(
                   icon: Icon(Icons.contacts, size: getheight(context, 30)),
                   label: "Contacts"),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.home, size: getheight(context, 30)),
+                  label: "Home"),
               BottomNavigationBarItem(
                   icon: Icon(Icons.person, size: getheight(context, 30)),
                   label: "Profile"),
