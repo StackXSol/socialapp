@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:socialapp/screens/contact_list.dart';
 import 'package:socialapp/screens/helper.dart';
 import 'package:socialapp/screens/homepage.dart';
@@ -32,16 +33,25 @@ class _MainNavState extends State<MainNav> {
       bottomNavigationBar: BottomAppBar(
         child: Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: getwidth(context, 83),
+              horizontal: getwidth(context, 23),
               vertical: getheight(context, 10)),
           child: BottomNavigationBar(
             backgroundColor: Color(0xFFE5E5E5),
             type: BottomNavigationBarType.fixed,
-            onTap: (val) {
-              setState(() {
-                print(val);
-                _index = val;
-              });
+            onTap: (val) async {
+              if (val == 1) {
+                if (await Permission.contacts.request().isGranted) {
+                  setState(() {
+                    _index = val;
+                  });
+                } else {
+                  print("Grant Permission Please!");
+                }
+              } else {
+                setState(() {
+                  _index = val;
+                });
+              }
             },
             items: [
               BottomNavigationBarItem(

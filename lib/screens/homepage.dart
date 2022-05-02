@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:socialapp/main.dart';
 import 'package:socialapp/widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,7 +27,7 @@ class _HomePageState extends State<HomePage> {
                     fontSize: getheight(context, 64), color: Colors.black),
               ),
               SizedBox(height: getheight(context, 30)),
-              Text("Username"),
+              Text(appuser.name),
               SizedBox(height: 59),
               Center(
                 child: Container(
@@ -69,8 +71,14 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {
-                              // all contacts
+                            onTap: () async {
+                              if (await Permission.contacts
+                                  .request()
+                                  .isGranted) {
+                                Navigator.pushNamed(context, "/contactlist");
+                              } else {
+                                print("Grant Permission Please!");
+                              }
                             },
                             child: Container(
                               margin: EdgeInsets.all(getheight(context, 5)),

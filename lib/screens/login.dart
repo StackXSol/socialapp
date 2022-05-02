@@ -102,6 +102,7 @@ class _LogInState extends State<LogIn> {
                           name: key.data()["Email"],
                           email: email,
                           uid: FirebaseAuth.instance.currentUser!.uid);
+                      Navigator.pushReplacementNamed(context, "/navbar");
                     });
                   }
                 },
@@ -152,6 +153,7 @@ class _LogInState extends State<LogIn> {
                       name: user!.displayName as String,
                       email: email,
                       uid: user.uid);
+                  Navigator.pushReplacementNamed(context, "/navbar");
                 },
               ),
               SizedBox(

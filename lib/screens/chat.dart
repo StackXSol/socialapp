@@ -1,33 +1,175 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:socialapp/main.dart';
 import 'package:socialapp/widgets.dart';
 
-class MainChat extends StatelessWidget {
-  const MainChat({Key? key}) : super(key: key);
+class MainChat extends StatefulWidget {
+  MainChat(
+      {required this.name,
+      required this.reciever,
+      required this.sender,
+      required this.cid});
+  String name, reciever, sender, cid;
+  @override
+  State<MainChat> createState() => _MainChatState();
+}
 
+class _MainChatState extends State<MainChat> {
+  TextEditingController msgcontro = TextEditingController();
+  List<Widget> chats = [];
+  String type = "text";
+  late File file;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: Column(
+      backgroundColor: Color(0xffE5E5E5),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        padding: EdgeInsets.all(5),
+        margin: EdgeInsets.symmetric(horizontal: 15),
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(100)),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              height: getheight(context, 50),
+            Expanded(
+              child: TextField(
+                controller: msgcontro,
+                onChanged: (val) {
+                  type = "Text";
+                },
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  prefixIcon: IconButton(
+                      onPressed: () async {
+                        if (await Permission.storage.request().isGranted) {
+                          FilePickerResult? result =
+                              await FilePicker.platform.pickFiles(
+                            type: FileType.custom,
+                            allowedExtensions: ['jpg', 'pdf', 'doc', 'png'],
+                          );
+                          if (result != null) {
+                            file = File(result.files.single.path!);
+                            PlatformFile f = result.files.first;
+                            if (f.extension == "jpg" || f.extension == "png") {
+                              type = "image";
+                            } else if (f.extension == "pdf" ||
+                                f.extension == "doc") {
+                              type = "document";
+                            }
+                            setState(() {
+                              msgcontro.text = file.toString();
+                            });
+                          }
+                        } else {
+                          print("Grant Permission Please!");
+                        }
+                      },
+                      icon: Icon(Icons.attach_file)),
+                  hintText: "message here!",
+                ),
+              ),
             ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: getwidth(context, 36)),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Color(0xFFC4C4C4)),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: getheight(context, 17)),
-                child: Row(
-                  children: [
-                    Text(
-                      "  Message Page",
-                      style: TextStyle(fontSize: getheight(context, 30)),
-                    ),
-                    Spacer(),
-                    Container(
+            SizedBox(),
+            IconButton(
+                onPressed: () async {
+                  if (type == "Text") {
+                    FirebaseFirestore.instance
+                        .collection("Users")
+                        .doc(widget.sender)
+                        .collection("Chats")
+                        .doc(widget.cid)
+                        .collection("chat")
+                        .doc(DateTime.now().toString())
+                        .set({
+                      "Type": type,
+                      "msg": msgcontro.text,
+                      "Sender": widget.sender
+                    });
+                    FirebaseFirestore.instance
+                        .collection("Users")
+                        .doc(widget.reciever)
+                        .collection("Chats")
+                        .doc(widget.cid)
+                        .collection("chat")
+                        .doc(DateTime.now().toString())
+                        .set({
+                      "Type": type,
+                      "msg": msgcontro.text,
+                      "Sender": widget.sender
+                    });
+                    setState(() {
+                      msgcontro.text = "";
+                    });
+                  } else if (type == "image") {
+                    setState(() {
+                      msgcontro.text = "";
+                    });
+                    final storageRef = FirebaseStorage.instance.ref(widget.cid);
+                    final chatRef = storageRef.child(DateTime.now().toString());
+
+                    await chatRef.putFile(file);
+                    String url = await chatRef.getDownloadURL();
+                    print(url);
+
+                    FirebaseFirestore.instance
+                        .collection("Users")
+                        .doc(widget.sender)
+                        .collection("Chats")
+                        .doc(widget.cid)
+                        .collection("chat")
+                        .doc(DateTime.now().toString())
+                        .set({
+                      "Type": type,
+                      "msg": url,
+                      "Sender": widget.sender
+                    });
+                    FirebaseFirestore.instance
+                        .collection("Users")
+                        .doc(widget.reciever)
+                        .collection("Chats")
+                        .doc(widget.cid)
+                        .collection("chat")
+                        .doc(DateTime.now().toString())
+                        .set({
+                      "Type": type,
+                      "msg": url,
+                      "Sender": widget.sender
+                    });
+                  }
+                },
+                icon: Icon(Icons.send))
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          SizedBox(
+            height: getheight(context, 54),
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: getwidth(context, 0)),
+            decoration: BoxDecoration(color: Color(0xFFC4C4C4)),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: getheight(context, 17)),
+              child: Row(
+                children: [
+                  Text(
+                    "Message Page",
+                    style: TextStyle(fontSize: getheight(context, 30)),
+                  ),
+                  Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      FirebaseAuth.instance.signOut();
+                    },
+                    child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(5),
@@ -35,132 +177,265 @@ class MainChat extends StatelessWidget {
                       child: Padding(
                           padding: EdgeInsets.all(5), child: Text("Sign Out")),
                     ),
-                    SizedBox(width: getwidth(context, 10)),
-                    Column(
-                      children: [Text("Hello,"), Text("Username")],
-                    ),
-                    SizedBox(width: 10),
-                    CircleAvatar(
-                      backgroundImage: NetworkImage(
-                          "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1"),
-                    ),
-                    SizedBox(width: 10)
-                  ],
-                ),
+                  ),
+                  SizedBox(width: getwidth(context, 10)),
+                  Column(
+                    children: [Text("Hello,"), Text("appuser.name")],
+                  ),
+                  SizedBox(width: 10),
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(
+                        "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1"),
+                  ),
+                  SizedBox(width: 10)
+                ],
               ),
             ),
-            SizedBox(height: getheight(context, 21)),
-            GestureDetector(
-              onTap: () {
-                //Go back
-              },
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  width: getwidth(context, 200),
-                  margin: EdgeInsets.only(left: getwidth(context, 83)),
-                  padding: EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                      border: Border.all(color: BlueColor),
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5)),
-                  child: Row(
+          ),
+          SizedBox(
+            height: getheight(context, 0),
+          ),
+          Container(
+            decoration: BoxDecoration(
+                color: Color(0xFFE5E5E5),
+                borderRadius: BorderRadius.circular(10)),
+            child: Container(
+              margin: EdgeInsets.only(
+                  top: getheight(context, 10), left: 5, right: 5, bottom: 10),
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(5)),
+              child: Row(
+                children: [
+                  Container(
+                      padding: EdgeInsets.all(5),
+                      height: getheight(context, 80),
+                      width: getheight(context, 80),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15)),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image(
+                          fit: BoxFit.cover,
+                          image: NetworkImage(
+                              "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1"),
+                        ),
+                      )),
+                  SizedBox(
+                    width: getwidth(context, 26),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.keyboard_return_sharp),
-                      SizedBox(
-                        width: 5,
+                      Text(
+                        widget.name,
+                        style: TextStyle(
+                            fontSize: getheight(context, 24),
+                            color: Colors.black),
                       ),
-                      Text("Go Back")
+                      SizedBox(
+                        height: 3,
+                      ),
+                      Text(widget.reciever.substring(0, 15))
                     ],
                   ),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: getheight(context, 30),
-            ),
-            Container(
-              height: getheight(context, 809),
-              width: getwidth(context, 666),
-              decoration: BoxDecoration(
-                  color: Color(0xFFE5E5E5),
-                  borderRadius: BorderRadius.circular(10)),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: getheight(context, 20)),
-                      width: getwidth(context, 600),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Row(
-                        children: [
-                          Container(
-                              padding: EdgeInsets.all(5),
-                              height: getheight(context, 80),
-                              width: getheight(context, 80),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(
-                                      "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1"),
-                                ),
-                              )),
-                          SizedBox(
-                            width: getwidth(context, 46),
-                          ),
-                          Column(
-                            children: [
-                              Text(
-                                "Mike Butoski",
-                                style: TextStyle(
-                                    fontSize: getheight(context, 24),
-                                    color: Colors.black),
-                              ),
-                              SizedBox(
-                                height: 3,
-                              ),
-                              Text("Currently online")
-                            ],
-                          ),
-                          Spacer(),
-                          Column(
-                            children: [
-                              Icon(
-                                Icons.call,
-                                size: getheight(context, 32),
-                                color: Colors.grey,
-                              ),
-                              Text("Voice")
-                            ],
-                          ),
-                          SizedBox(width: getwidth(context, 20)),
-                          Column(
-                            children: [
-                              Icon(
-                                Icons.video_call,
-                                size: getheight(context, 32),
-                                color: Colors.grey,
-                              ),
-                              Text("Video")
-                            ],
-                          ),
-                          SizedBox(width: getwidth(context, 10)),
-                        ],
+                  Spacer(),
+                  Column(
+                    children: [
+                      Icon(
+                        Icons.call,
+                        size: getheight(context, 32),
+                        color: Colors.grey,
                       ),
-                    )
-                  ],
-                ),
+                      Text("Voice")
+                    ],
+                  ),
+                  SizedBox(width: getwidth(context, 20)),
+                  Column(
+                    children: [
+                      Icon(
+                        Icons.video_call,
+                        size: getheight(context, 32),
+                        color: Colors.grey,
+                      ),
+                      Text("Video")
+                    ],
+                  ),
+                  SizedBox(width: getwidth(context, 10)),
+                ],
               ),
-            )
-          ],
-        ),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              reverse: true,
+              children: [
+                StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection("Users")
+                      .doc(appuser.uid)
+                      .collection("Chats")
+                      .doc(widget.cid)
+                      .collection("chat")
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot futureSnapshot) {
+                    if (futureSnapshot.hasData) {
+                      chats = [];
+                      final messages = futureSnapshot.data.docs;
+                      for (var msg in messages) {
+                        bool x = (appuser.uid == msg.data()["Sender"]);
+                        if (x) {
+                          if (msg.data()["Type"] == "Text") {
+                            chats.add(
+                              sender_block(que: msg.data()["msg"]),
+                            );
+                          } else if (msg.data()["Type"] == "image") {
+                            chats.add(
+                                Sender_image_block(url: msg.data()["msg"]));
+                          }
+                        } else {
+                          if (msg.data()["Type"] == "Text") {
+                            chats.add(reciever_block(text: msg.data()["msg"]));
+                          } else if (msg.data()["Type"] == "image") {
+                            chats.add(
+                                Reciever_image_block(url: msg.data()["msg"]));
+                          }
+                        }
+                      }
+                      return Column(
+                        children: chats,
+                      );
+                    }
+                    if (!futureSnapshot.hasData) {
+                      print("do");
+                      return Column(
+                        children: chats,
+                      );
+                    }
+                    return Container();
+                  },
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: getheight(context, 115),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class Sender_image_block extends StatelessWidget {
+  Sender_image_block({required this.url});
+  String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          margin: EdgeInsets.fromLTRB(0, 0, 8, 5),
+          padding: EdgeInsets.all(3),
+          width: getwidth(context, 400),
+          height: getheight(context, 400),
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.black),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10)),
+          child: Container(
+            width: 390,
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: NetworkImage(url), fit: BoxFit.cover)),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class Reciever_image_block extends StatelessWidget {
+  Reciever_image_block({required this.url});
+  String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.fromLTRB(8, 0, 0, 5),
+          padding: EdgeInsets.all(3),
+          width: getwidth(context, 400),
+          height: getheight(context, 400),
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.black),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10)),
+          child: Container(
+            width: 390,
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: NetworkImage(url), fit: BoxFit.cover)),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class sender_block extends StatelessWidget {
+  sender_block({required this.que});
+  String que;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 200),
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: Color(0xff2F80ED),
+                borderRadius: BorderRadius.circular(5)),
+            child: Text(
+              que,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class reciever_block extends StatelessWidget {
+  reciever_block({required this.text});
+  String text;
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 200),
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(5)),
+            child: Text(
+              text,
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        )
+      ],
     );
   }
 }
