@@ -6,6 +6,8 @@ import 'package:flutter_signin_button/button_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/backend-data.dart';
 import 'package:socialapp/main.dart';
+import 'package:socialapp/screens/navbar.dart';
+import 'package:socialapp/screens/register.dart';
 import 'package:socialapp/widgets.dart';
 
 class LogIn extends StatefulWidget {
@@ -44,7 +46,7 @@ class _LogInState extends State<LogIn> {
                     EdgeInsets.symmetric(horizontal: getwidth(context, 113)),
                 child: TextField(
                     onChanged: (val) {
-                      email = val;
+                      email = val.replaceAll(" ", "");
                     },
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
@@ -195,7 +197,8 @@ class _LogInState extends State<LogIn> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, "/register");
+                      // Navigator.pushReplacementNamed(context, '/navbar');
+                      print("there is not problem");
                     },
                     child: Text(
                       "Register",

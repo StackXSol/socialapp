@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp/screens/login.dart';
 import 'package:socialapp/screens/navbar.dart';
+import 'package:socialapp/screens/register.dart';
 
 import 'backend-data.dart';
 import 'main.dart';
@@ -34,9 +35,11 @@ class _loadingpageState extends State<loadingpage> {
           uid: key.data()["uid"]);
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: ((context) => MainNav())));
+      // Navigator.pushReplacementNamed(context, '/navbar', arguments: appuser);
     } catch (e) {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: ((context) => LogIn())));
+      // Navigator.pushReplacementNamed(context, '/navbar', arguments: appuser);
     }
   }
 

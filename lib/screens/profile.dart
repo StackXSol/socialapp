@@ -220,7 +220,7 @@ class Profile extends StatelessWidget {
                                     border: Border.all(color: BlueColor),
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(5)),
-                                child: Text("Edit/Save Profile"),
+                                child: Text("Save Profile"),
                               ),
                             ),
                           )

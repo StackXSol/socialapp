@@ -41,9 +41,9 @@ class _MyAppState extends State<MyApp> {
       ),
       routes: {
         '/login': (context) => const LogIn(),
-        '/register': (context) => const Register(),
-        '/homepage': (context) => const HomePage(),
-        '/navbar': (context) => const MainNav(),
+        '/register': (context) => Register(),
+        '/homepage': (context) => HomePage(),
+        '/navbar': (context) => MainNav(),
         '/recentchats': (context) => const RecentChats(),
         '/contactlist': (context) => const ContactList(),
         '/profile': (context) => const Profile(),
