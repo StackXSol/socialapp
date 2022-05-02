@@ -42,7 +42,7 @@ class HelperPage extends StatelessWidget {
                     SizedBox(width: 10),
                     CircleAvatar(
                       backgroundImage: NetworkImage(
-                          "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1"),
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpioF-xi4bFhRAuMCfhSSFUVpBchghoELbw&usqp=CAU"),
                     ),
                     SizedBox(width: 10)
                   ],

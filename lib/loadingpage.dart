@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:socialapp/screens/login.dart';
 import 'package:socialapp/screens/navbar.dart';
+import 'package:socialapp/screens/register.dart';
 
 import 'backend-data.dart';
 import 'main.dart';
@@ -23,21 +24,27 @@ class _loadingpageState extends State<loadingpage> {
   }
 
   Future<void> check_auth() async {
-    try {
-      dynamic key = await FirebaseFirestore.instance
-          .collection("Users")
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .get();
-      appuser = current_user(
-          name: key.data()["Name"],
-          email: key.data()["Email"],
-          uid: key.data()["uid"]);
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: ((context) => MainNav())));
-    } catch (e) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: ((context) => LogIn())));
-    }
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      try {
+        if (user == null) {
+          Navigator.pushReplacementNamed(context, '/login');
+        } else {
+          dynamic key = await FirebaseFirestore.instance
+              .collection("Users")
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .get();
+
+          appuser = current_user(
+              name: key.data()["Name"],
+              email: key.data()["Email"],
+              uid: key.data()["uid"]);
+
+          Navigator.pushReplacementNamed(context, '/navbar');
+        }
+      } catch (e) {
+        Navigator.pushNamed(context, '/login');
+      }
+    });
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+
 import 'package:socialapp/backend-data.dart';
 import 'package:socialapp/loadingpage.dart';
 import 'package:socialapp/screens/contact_list.dart';
@@ -15,7 +16,9 @@ import 'package:socialapp/screens/chat.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
+
   runApp(MyApp());
 }
 
@@ -40,13 +43,13 @@ class _MyAppState extends State<MyApp> {
         textTheme: TextTheme(bodyText2: TextStyle(color: Colors.grey)),
       ),
       routes: {
-        '/login': (context) => const LogIn(),
-        '/register': (context) => const Register(),
-        '/homepage': (context) => const HomePage(),
-        '/navbar': (context) => const MainNav(),
-        '/recentchats': (context) => const RecentChats(),
-        '/contactlist': (context) => const ContactList(),
-        '/profile': (context) => const Profile(),
+        '/login': (context) => LogIn(),
+        '/register': (context) => Register(),
+        '/homepage': (context) => HomePage(),
+        '/navbar': (context) => MainNav(),
+        '/recentchats': (context) => RecentChats(),
+        '/contactlist': (context) => ContactList(),
+        '/profile': (context) => Profile(),
         '/loading': (context) => loadingpage(),
       },
       initialRoute: initial,

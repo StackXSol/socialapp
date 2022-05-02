@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socialapp/main.dart';
 import 'package:socialapp/widgets.dart';
@@ -43,7 +44,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              // Recent Chats
+                              Navigator.pushNamed(context, '/recentchats');
                             },
                             child: Container(
                               margin: EdgeInsets.all(getheight(context, 5)),
@@ -115,7 +116,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              // Gallery
+                              Fluttertoast.showToast(msg: "Coming Soon!");
                             },
                             child: Container(
                               margin: EdgeInsets.all(getheight(context, 5)),
@@ -144,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              // Profile
+                              Navigator.pushNamed(context, '/profile');
                             },
                             child: Container(
                               margin: EdgeInsets.all(getheight(context, 5)),

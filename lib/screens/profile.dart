@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:socialapp/main.dart';
 import 'package:socialapp/widgets.dart';
 
 class Profile extends StatelessWidget {
@@ -14,35 +17,42 @@ class Profile extends StatelessWidget {
             height: getheight(context, 50),
           ),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: getwidth(context, 36)),
+            margin: EdgeInsets.symmetric(horizontal: getwidth(context, 0)),
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(0),
                 color: Color(0xFFC4C4C4)),
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: getheight(context, 17)),
               child: Row(
                 children: [
                   Text(
-                    "  Chat list",
+                    "  Profile",
                     style: TextStyle(fontSize: getheight(context, 30)),
                   ),
                   Spacer(),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5),
+                  GestureDetector(
+                    onTap: () {
+                      FirebaseAuth.instance.signOut();
+                      GoogleSignIn().signOut();
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Padding(
+                          padding: EdgeInsets.all(5), child: Text("Sign Out")),
                     ),
-                    child: Padding(
-                        padding: EdgeInsets.all(5), child: Text("Sign Out")),
                   ),
-                  SizedBox(width: getwidth(context, 10)),
+                  SizedBox(width: getwidth(context, 30)),
                   Column(
                     children: [Text("Hello,"), Text("Username")],
                   ),
                   SizedBox(width: 10),
                   CircleAvatar(
                     backgroundImage: NetworkImage(
-                        "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1"),
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpioF-xi4bFhRAuMCfhSSFUVpBchghoELbw&usqp=CAU"),
                   ),
                   SizedBox(width: 10)
                 ],
@@ -56,11 +66,11 @@ class Profile extends StatelessWidget {
                 color: Colors.black, fontSize: getheight(context, 36)),
           ),
           SizedBox(
-            height: getheight(context, 60),
+            height: getheight(context, 30),
           ),
           Container(
             height: getheight(context, 809),
-            width: getwidth(context, 666),
+            width: getwidth(context, 766),
             decoration: BoxDecoration(
                 color: Color(0xFFE5E5E5),
                 borderRadius: BorderRadius.circular(10)),
@@ -84,25 +94,25 @@ class Profile extends StatelessWidget {
                                 child: Image(
                                     fit: BoxFit.cover,
                                     image: NetworkImage(
-                                        "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1")),
+                                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpioF-xi4bFhRAuMCfhSSFUVpBchghoELbw&usqp=CAU")),
                               ),
                             ),
                             SizedBox(
                               height: getheight(context, 10),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                //change picture
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                    border: Border.all(color: BlueColor),
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(5)),
-                                child: Text("Change Picture"),
-                              ),
-                            )
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     //change picture
+                            //   },
+                            //   child: Container(
+                            //     padding: EdgeInsets.all(2),
+                            //     decoration: BoxDecoration(
+                            //         border: Border.all(color: BlueColor),
+                            //         color: Colors.white,
+                            //         borderRadius: BorderRadius.circular(5)),
+                            //     child: Text("Change Picture"),
+                            //   ),
+                            // )
                           ],
                         ),
                       ),
@@ -113,7 +123,7 @@ class Profile extends StatelessWidget {
                             Container(
                               width: getwidth(context, 280),
                               child: Text(
-                                "Mary Williams",
+                                appuser.name,
                                 style: TextStyle(
                                     fontSize: getheight(context, 28),
                                     color: Colors.black),
@@ -167,7 +177,7 @@ class Profile extends StatelessWidget {
                                   enabledBorder: InputBorder.none,
                                   errorBorder: InputBorder.none,
                                   disabledBorder: InputBorder.none,
-                                  hintText: "Mary williams"),
+                                  hintText: appuser.name),
                             ),
                           ),
                           SizedBox(
@@ -186,7 +196,7 @@ class Profile extends StatelessWidget {
                                   enabledBorder: InputBorder.none,
                                   errorBorder: InputBorder.none,
                                   disabledBorder: InputBorder.none,
-                                  hintText: "Marywilliams@gmail.com"),
+                                  hintText: appuser.email),
                             ),
                           ),
                           SizedBox(
@@ -220,7 +230,7 @@ class Profile extends StatelessWidget {
                                     border: Border.all(color: BlueColor),
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(5)),
-                                child: Text("Edit/Save Profile"),
+                                child: Text("Save Profile"),
                               ),
                             ),
                           )

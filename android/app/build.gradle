@@ -48,6 +48,7 @@ android {
         applicationId "com.socialapp.socialapp"
         minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

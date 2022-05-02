@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/widgets.dart';
 
 class ContactList extends StatefulWidget {
@@ -43,7 +45,7 @@ class _ContactListState extends State<ContactList> {
             Container(
               margin: EdgeInsets.symmetric(horizontal: getwidth(context, 0)),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(0),
                   color: Color(0xFFC4C4C4)),
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: getheight(context, 17)),
@@ -54,22 +56,30 @@ class _ContactListState extends State<ContactList> {
                       style: TextStyle(fontSize: getheight(context, 30)),
                     ),
                     Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5),
+                    GestureDetector(
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        GoogleSignIn().signOut();
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Text("Sign Out")),
                       ),
-                      child: Padding(
-                          padding: EdgeInsets.all(5), child: Text("Sign Out")),
                     ),
-                    SizedBox(width: getwidth(context, 10)),
+                    SizedBox(width: getwidth(context, 30)),
                     Column(
                       children: [Text("Hello,"), Text("Username")],
                     ),
                     SizedBox(width: 10),
                     CircleAvatar(
                       backgroundImage: NetworkImage(
-                          "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1"),
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpioF-xi4bFhRAuMCfhSSFUVpBchghoELbw&usqp=CAU"),
                     ),
                     SizedBox(width: 10)
                   ],

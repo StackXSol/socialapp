@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/main.dart';
 import 'package:socialapp/screens/chat.dart';
 import 'package:socialapp/screens/contact_list.dart';
@@ -12,6 +13,8 @@ class RecentChats extends StatefulWidget {
   @override
   State<RecentChats> createState() => _RecentChatsState();
 }
+
+TextEditingController _emailcontro = TextEditingController();
 
 class _RecentChatsState extends State<RecentChats> {
   String email = "";
@@ -25,18 +28,31 @@ class _RecentChatsState extends State<RecentChats> {
 
   Future<void> get_chats() async {
     chats = [];
-    dynamic key = await FirebaseFirestore.instance
+    var key = await FirebaseFirestore.instance
         .collection("Users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection("Chats")
         .get();
-    for (dynamic i in key.docs) {
+
+    for (var i in key.docs) {
+      var key1 = await FirebaseFirestore.instance
+          .collection("Users")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("Chats")
+          .doc(i.id)
+          .collection("chat")
+          .get();
+      String lastmsg = key1.docs.last.data()["Type"] != "Text"
+          ? key1.docs.last.data()["Type"] == "image"
+              ? "Image File"
+              : "Document File"
+          : key1.docs.last.data()["msg"];
       chats.add(_Chat(
           sender: i.data()["Sender"],
           cid: i.data()["cid"],
           reciever: i.data()["Reciever"],
           name: i.data()["Reciever_Name"],
-          lastmsg: "lastmsg"));
+          lastmsg: lastmsg));
     }
     setState(() {});
   }
@@ -64,22 +80,30 @@ class _RecentChatsState extends State<RecentChats> {
                       style: TextStyle(fontSize: getheight(context, 30)),
                     ),
                     Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5),
+                    GestureDetector(
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        GoogleSignIn().signOut();
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Text("Sign Out")),
                       ),
-                      child: Padding(
-                          padding: EdgeInsets.all(5), child: Text("Sign Out")),
                     ),
                     SizedBox(width: getwidth(context, 10)),
                     Column(
-                      children: [Text("Hello,"), Text("appuser.name")],
+                      children: [Text("Hello,"), Text(appuser.name)],
                     ),
                     SizedBox(width: 10),
                     CircleAvatar(
                       backgroundImage: NetworkImage(
-                          "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1"),
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpioF-xi4bFhRAuMCfhSSFUVpBchghoELbw&usqp=CAU"),
                     ),
                     SizedBox(width: 10)
                   ],
@@ -93,6 +117,7 @@ class _RecentChatsState extends State<RecentChats> {
                 children: [
                   Expanded(
                     child: TextField(
+                      controller: _emailcontro,
                       onChanged: (val) {
                         email = val;
                         if (val == "") {
@@ -116,7 +141,7 @@ class _RecentChatsState extends State<RecentChats> {
                   SizedBox(),
                   IconButton(
                       onPressed: () async {
-                        if (email != "") {
+                        if (email != "" && email != appuser.email) {
                           chats = [];
                           var key = await FirebaseFirestore.instance
                               .collection("Users")
@@ -167,20 +192,18 @@ class _Chat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => MainChat(
-                        cid: cid,
-                        name: name,
-                        reciever: reciever,
-                        sender: sender)));
-          },
-          child: Container(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => MainChat(
+                    cid: cid, name: name, reciever: reciever, sender: sender)));
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
             padding: EdgeInsets.symmetric(vertical: getheight(context, 20)),
             margin: EdgeInsets.symmetric(horizontal: 15),
             child: Row(
@@ -197,7 +220,7 @@ class _Chat extends StatelessWidget {
                           child: Image(
                             fit: BoxFit.cover,
                             image: NetworkImage(
-                                "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1"),
+                                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpioF-xi4bFhRAuMCfhSSFUVpBchghoELbw&usqp=CAU"),
                           ),
                         )),
                     Positioned(
@@ -246,14 +269,14 @@ class _Chat extends StatelessWidget {
               ],
             ),
           ),
-        ),
-        Divider(
-          height: 2,
-          endIndent: getheight(context, 70),
-          indent: getheight(context, 70),
-          color: Color(0xFF808080),
-        ),
-      ],
+          Divider(
+            height: 2,
+            endIndent: getheight(context, 70),
+            indent: getheight(context, 70),
+            color: Color(0xFF808080),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -265,45 +288,56 @@ class New_Chat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            print("making id");
-            FirebaseFirestore.instance
-                .collection("Users")
-                .doc(FirebaseAuth.instance.currentUser!.uid)
-                .collection("Chats")
-                .doc(FirebaseAuth.instance.currentUser!.uid.toString() +
-                    "-" +
-                    uid.toString())
-                .set({
-              "Reciever": uid,
-              "Reciever_Name": name,
-              "Sender_Name": appuser.name,
-              "cid": FirebaseAuth.instance.currentUser!.uid.toString() +
-                  "-" +
-                  uid.toString(),
-              "Sender": FirebaseAuth.instance.currentUser!.uid.toString()
-            });
-            FirebaseFirestore.instance
-                .collection("Users")
-                .doc(uid)
-                .collection("Chats")
-                .doc(FirebaseAuth.instance.currentUser!.uid.toString() +
-                    "-" +
-                    uid.toString())
-                .set({
-              "Reciever": FirebaseAuth.instance.currentUser!.uid.toString(),
-              "Sender_Name": name,
-              "cid": FirebaseAuth.instance.currentUser!.uid.toString() +
-                  "-" +
-                  uid.toString(),
-              "Reciever_Name": appuser.name,
-              "Sender": uid
-            });
-          },
-          child: Container(
+    return GestureDetector(
+      onTap: () async {
+        _emailcontro.text = "xyz...";
+        await FirebaseFirestore.instance
+            .collection("Users")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection("Chats")
+            .doc(FirebaseAuth.instance.currentUser!.uid.toString() +
+                "-" +
+                uid.toString())
+            .set({
+          "Reciever": uid,
+          "Reciever_Name": name,
+          "Sender_Name": appuser.name,
+          "cid": FirebaseAuth.instance.currentUser!.uid.toString() +
+              "-" +
+              uid.toString(),
+          "Sender": FirebaseAuth.instance.currentUser!.uid.toString()
+        });
+        await FirebaseFirestore.instance
+            .collection("Users")
+            .doc(uid)
+            .collection("Chats")
+            .doc(FirebaseAuth.instance.currentUser!.uid.toString() +
+                "-" +
+                uid.toString())
+            .set({
+          "Reciever": FirebaseAuth.instance.currentUser!.uid.toString(),
+          "Sender_Name": name,
+          "cid": FirebaseAuth.instance.currentUser!.uid.toString() +
+              "-" +
+              uid.toString(),
+          "Reciever_Name": appuser.name,
+          "Sender": uid
+        });
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => MainChat(
+                    cid: FirebaseAuth.instance.currentUser!.uid.toString() +
+                        "-" +
+                        uid.toString(),
+                    name: name,
+                    reciever: uid,
+                    sender: FirebaseAuth.instance.currentUser!.uid)));
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
             padding: EdgeInsets.symmetric(vertical: getheight(context, 20)),
             margin: EdgeInsets.symmetric(horizontal: 15),
             child: Row(
@@ -320,7 +354,7 @@ class New_Chat extends StatelessWidget {
                           child: Image(
                             fit: BoxFit.cover,
                             image: NetworkImage(
-                                "https://www.insidesport.in/wp-content/uploads/2021/11/FBx-v7JXoAAkCzM-58.jpg?w=1068&h=0&crop=1"),
+                                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpioF-xi4bFhRAuMCfhSSFUVpBchghoELbw&usqp=CAU"),
                           ),
                         )),
                     Positioned(
@@ -369,14 +403,14 @@ class New_Chat extends StatelessWidget {
               ],
             ),
           ),
-        ),
-        Divider(
-          height: 2,
-          endIndent: getheight(context, 70),
-          indent: getheight(context, 70),
-          color: Color(0xFF808080),
-        ),
-      ],
+          Divider(
+            height: 2,
+            endIndent: getheight(context, 70),
+            indent: getheight(context, 70),
+            color: Color(0xFF808080),
+          ),
+        ],
+      ),
     );
   }
 }

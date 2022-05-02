@@ -3,9 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/backend-data.dart';
 import 'package:socialapp/main.dart';
+import 'package:socialapp/screens/navbar.dart';
+import 'package:socialapp/screens/register.dart';
 import 'package:socialapp/widgets.dart';
 
 class LogIn extends StatefulWidget {
@@ -44,7 +47,7 @@ class _LogInState extends State<LogIn> {
                     EdgeInsets.symmetric(horizontal: getwidth(context, 113)),
                 child: TextField(
                     onChanged: (val) {
-                      email = val;
+                      email = val.replaceAll(" ", "");
                     },
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
@@ -138,22 +141,34 @@ class _LogInState extends State<LogIn> {
                 Buttons.Google,
                 text: "Sign in with Google",
                 onPressed: () async {
-                  GoogleSignIn gs = GoogleSignIn(scopes: ['email']);
-                  GoogleSignInAccount? google_user = await gs.signIn();
-                  GoogleSignInAuthentication googleAuth =
-                      await google_user!.authentication;
-                  final AuthCredential credential =
-                      GoogleAuthProvider.credential(
-                          idToken: googleAuth.idToken,
-                          accessToken: googleAuth.accessToken);
-                  final UserCredential authResult = await FirebaseAuth.instance
-                      .signInWithCredential(credential);
-                  User? user = authResult.user;
-                  appuser = current_user(
-                      name: user!.displayName as String,
-                      email: email,
-                      uid: user.uid);
-                  Navigator.pushReplacementNamed(context, "/navbar");
+                  try {
+                    GoogleSignIn gs = GoogleSignIn(scopes: ['email']);
+                    GoogleSignInAccount? google_user = await gs.signIn();
+                    GoogleSignInAuthentication googleAuth =
+                        await google_user!.authentication;
+                    final AuthCredential credential =
+                        GoogleAuthProvider.credential(
+                            idToken: googleAuth.idToken,
+                            accessToken: googleAuth.accessToken);
+                    final UserCredential authResult = await FirebaseAuth
+                        .instance
+                        .signInWithCredential(credential);
+                    User? user = authResult.user;
+                    dynamic key = await FirebaseFirestore.instance
+                        .collection("Users")
+                        .doc(user!.uid)
+                        .get();
+                    print(key.data()["Name"]);
+                    appuser = current_user(
+                        name: user.displayName as String,
+                        email: user.email as String,
+                        uid: user.uid);
+                    Navigator.pushReplacementNamed(context, "/navbar");
+                  } catch (e) {
+                    GoogleSignIn().signOut();
+                    Fluttertoast.showToast(
+                        msg: "No user with this email exists!");
+                  }
                 },
               ),
               SizedBox(
@@ -195,7 +210,8 @@ class _LogInState extends State<LogIn> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, "/register");
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Register()));
                     },
                     child: Text(
                       "Register",
