@@ -24,6 +24,7 @@ class _MainChatState extends State<MainChat> {
   TextEditingController msgcontro = TextEditingController();
   List<Widget> chats = [];
   String type = "text";
+  String docname = "";
   late File file;
   @override
   Widget build(BuildContext context) {
@@ -62,6 +63,7 @@ class _MainChatState extends State<MainChat> {
                             } else if (f.extension == "pdf" ||
                                 f.extension == "doc") {
                               type = "document";
+                              docname = f.name;
                             }
                             setState(() {
                               msgcontro.text = file.toString();
@@ -140,6 +142,43 @@ class _MainChatState extends State<MainChat> {
                         .set({
                       "Type": type,
                       "msg": url,
+                      "Sender": widget.sender
+                    });
+                  } else if (type == "document") {
+                    setState(() {
+                      msgcontro.text = "";
+                    });
+                    final storageRef = FirebaseStorage.instance.ref(widget.cid);
+                    final chatRef = storageRef.child(DateTime.now().toString());
+
+                    await chatRef.putFile(file);
+                    String url = await chatRef.getDownloadURL();
+                    print(url);
+
+                    FirebaseFirestore.instance
+                        .collection("Users")
+                        .doc(widget.sender)
+                        .collection("Chats")
+                        .doc(widget.cid)
+                        .collection("chat")
+                        .doc(DateTime.now().toString())
+                        .set({
+                      "Type": type,
+                      "msg": url,
+                      "docname": docname,
+                      "Sender": widget.sender
+                    });
+                    FirebaseFirestore.instance
+                        .collection("Users")
+                        .doc(widget.reciever)
+                        .collection("Chats")
+                        .doc(widget.cid)
+                        .collection("chat")
+                        .doc(DateTime.now().toString())
+                        .set({
+                      "Type": type,
+                      "msg": url,
+                      "docname": docname,
                       "Sender": widget.sender
                     });
                   }
@@ -291,6 +330,11 @@ class _MainChatState extends State<MainChat> {
                           } else if (msg.data()["Type"] == "image") {
                             chats.add(
                                 Sender_image_block(url: msg.data()["msg"]));
+                          } else if (msg.data()["Type"] == "document") {
+                            chats.add(Sender_doc_block(
+                              name: msg.data()["docname"],
+                              url: msg.data()["msg"],
+                            ));
                           }
                         } else {
                           if (msg.data()["Type"] == "Text") {
@@ -298,6 +342,11 @@ class _MainChatState extends State<MainChat> {
                           } else if (msg.data()["Type"] == "image") {
                             chats.add(
                                 Reciever_image_block(url: msg.data()["msg"]));
+                          } else if (msg.data()["Type"] == "document") {
+                            chats.add(Reciever_doc_block(
+                              name: msg.data()["docname"],
+                              url: msg.data()["msg"],
+                            ));
                           }
                         }
                       }
@@ -349,6 +398,96 @@ class Sender_image_block extends StatelessWidget {
             decoration: BoxDecoration(
                 image: DecorationImage(
                     image: NetworkImage(url), fit: BoxFit.cover)),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class Sender_doc_block extends StatelessWidget {
+  Sender_doc_block({required this.url, required this.name});
+  String name, url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          margin: EdgeInsets.fromLTRB(0, 0, 8, 5),
+          height: getheight(context, 80),
+          //width: getwidth(context, 450),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade500,
+            border: Border.all(color: Colors.black),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                name,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16),
+              ),
+              IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.download,
+                    color: Colors.white,
+                  ))
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class Reciever_doc_block extends StatelessWidget {
+  Reciever_doc_block({required this.url, required this.name});
+  String name, url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.fromLTRB(8, 0, 0, 5),
+          height: getheight(context, 80),
+          //width: getwidth(context, 450),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade500,
+            border: Border.all(color: Colors.black),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                name,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16),
+              ),
+              IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.download,
+                    color: Colors.white,
+                  ))
+            ],
           ),
         ),
       ],
