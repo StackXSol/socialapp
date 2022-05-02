@@ -127,47 +127,47 @@ class _RegisterState extends State<Register> {
                       setState(() {
                         showSpinner = true;
                       });
-                      {
-                        try {
-                          if (name != "" && email != "" && pass != "") {
-                            FirebaseAuth.instance
-                                .createUserWithEmailAndPassword(
-                                    email: email, password: pass)
-                                .then(
-                                  (value) => FirebaseFirestore.instance
-                                      .collection("Users")
-                                      .doc(FirebaseAuth
-                                          .instance.currentUser!.uid)
-                                      .set(
-                                    {
-                                      "Name": name,
-                                      "Email": email,
-                                      "uid":
-                                          FirebaseAuth.instance.currentUser!.uid
-                                    },
-                                    SetOptions(merge: true),
-                                  ),
-                                );
-                            appuser = await current_user(
-                                name: name,
-                                email: email,
-                                uid: FirebaseAuth.instance.currentUser!.uid);
-                            Navigator.pushNamed(
-                              context,
-                              '/navbar',
-                            );
-                            setState(() {
-                              showSpinner = false;
-                            });
-                          } else {
-                            Fluttertoast.showToast(msg: "Enter all fields");
-                          }
-                        } on FirebaseAuthException catch (e) {
+                      try {
+                        if (name != "" && email != "" && pass != "") {
+                          FirebaseAuth.instance
+                              .createUserWithEmailAndPassword(
+                                  email: email, password: pass)
+                              .then(
+                                (value) => FirebaseFirestore.instance
+                                    .collection("Users")
+                                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                                    .set(
+                                  {
+                                    "Name": name,
+                                    "Email": email,
+                                    "uid":
+                                        FirebaseAuth.instance.currentUser!.uid
+                                  },
+                                  SetOptions(merge: true),
+                                ),
+                              );
+                          appuser = await current_user(
+                              name: name,
+                              email: email,
+                              uid: FirebaseAuth.instance.currentUser!.uid);
                           setState(() {
                             showSpinner = false;
                           });
-                          Fluttertoast.showToast(msg: e.message.toString());
+                          Navigator.pushNamed(
+                            context,
+                            '/navbar',
+                          );
+                        } else {
+                          setState(() {
+                            showSpinner = false;
+                          });
+                          Fluttertoast.showToast(msg: "Enter all fields");
                         }
+                      } on FirebaseAuthException catch (e) {
+                        setState(() {
+                          showSpinner = false;
+                        });
+                        Fluttertoast.showToast(msg: e.message.toString());
                       }
                     },
                     child: Container(
