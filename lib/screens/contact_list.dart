@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/widgets.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
+
+import '../main.dart';
 
 class ContactList extends StatefulWidget {
   const ContactList({Key? key}) : super(key: key);
@@ -12,6 +15,7 @@ class ContactList extends StatefulWidget {
 }
 
 class _ContactListState extends State<ContactList> {
+  bool showSpinner = false;
   @override
   void initState() {
     get_contacts();
@@ -21,6 +25,9 @@ class _ContactListState extends State<ContactList> {
   List<Chat> con_list = [];
 
   Future<void> get_contacts() async {
+    setState(() {
+      showSpinner = true;
+    });
     con_list = [];
     List<Contact> contacts = await ContactsService.getContacts();
     for (var i in contacts) {
@@ -30,85 +37,99 @@ class _ContactListState extends State<ContactList> {
             Chat(mobile: j.value.toString(), name: i.displayName.toString()));
       }
     }
-    setState(() {});
+    setState(() {
+      showSpinner = false;
+    });
+    // setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: Column(
-          children: [
-            SizedBox(
-              height: getheight(context, 50),
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: getwidth(context, 0)),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(0),
-                  color: Color(0xFFC4C4C4)),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: getheight(context, 17)),
-                child: Row(
-                  children: [
-                    Text(
-                      "  Contact List",
-                      style: TextStyle(fontSize: getheight(context, 30)),
-                    ),
-                    Spacer(),
-                    GestureDetector(
-                      onTap: () {
-                        FirebaseAuth.instance.signOut();
-                        GoogleSignIn().signOut();
-                        Navigator.pushReplacementNamed(context, '/login');
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Text("Sign Out")),
+      body: ModalProgressHUD(
+        inAsyncCall: showSpinner,
+        child: Container(
+          child: Column(
+            children: [
+              SizedBox(
+                height: getheight(context, 50),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: getwidth(context, 0)),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(0),
+                    color: Color(0xFFC4C4C4)),
+                child: Padding(
+                  padding:
+                      EdgeInsets.symmetric(vertical: getheight(context, 17)),
+                  child: Row(
+                    children: [
+                      Text(
+                        "  Contact List",
+                        style: TextStyle(fontSize: getheight(context, 30)),
                       ),
-                    ),
-                    SizedBox(width: getwidth(context, 30)),
-                    Column(
-                      children: [Text("Hello,"), Text("Username")],
-                    ),
-                    SizedBox(width: 10),
-                    CircleAvatar(
-                      backgroundImage: NetworkImage(
-                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpioF-xi4bFhRAuMCfhSSFUVpBchghoELbw&usqp=CAU"),
-                    ),
-                    SizedBox(width: 10)
-                  ],
+                      Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          FirebaseAuth.instance.signOut();
+                          GoogleSignIn().signOut();
+                          Navigator.pushReplacementNamed(context, '/login');
+                        },
+                        child: GestureDetector(
+                          onTap: () {
+                            FirebaseAuth.instance.signOut();
+                            GoogleSignIn().signOut();
+                            Navigator.pushReplacementNamed(context, '/login');
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Padding(
+                                padding: EdgeInsets.all(5),
+                                child: Text("Sign Out")),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: getwidth(context, 30)),
+                      Column(
+                        children: [Text("Hello,"), Text(appuser.name)],
+                      ),
+                      SizedBox(width: 10),
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(
+                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpioF-xi4bFhRAuMCfhSSFUVpBchghoELbw&usqp=CAU"),
+                      ),
+                      SizedBox(width: 10)
+                    ],
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: getheight(context, 21)),
-            Text(
-              "Contact List",
-              style: TextStyle(
-                  color: Colors.black, fontSize: getheight(context, 36)),
-            ),
-            SizedBox(
-              height: getheight(context, 30),
-            ),
-            Container(
-              height: getheight(context, 809),
-              padding: EdgeInsets.all(10),
-              margin: EdgeInsets.only(left: 15, right: 15),
-              decoration: BoxDecoration(
-                  color: Color(0xFFE5E5E5),
-                  borderRadius: BorderRadius.circular(10)),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: con_list,
-                ),
+              SizedBox(height: getheight(context, 21)),
+              Text(
+                "Contact List",
+                style: TextStyle(
+                    color: Colors.black, fontSize: getheight(context, 36)),
               ),
-            )
-          ],
+              SizedBox(
+                height: getheight(context, 30),
+              ),
+              Container(
+                height: getheight(context, 809),
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.only(left: 15, right: 15),
+                decoration: BoxDecoration(
+                    color: Color(0xFFE5E5E5),
+                    borderRadius: BorderRadius.circular(10)),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: con_list,
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

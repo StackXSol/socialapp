@@ -27,9 +27,9 @@ class _RegisterState extends State<Register> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: ModalProgressHUD(
-          inAsyncCall: showSpinner,
+      body: ModalProgressHUD(
+        inAsyncCall: showSpinner,
+        child: SingleChildScrollView(
           child: Container(
             child: Column(
               children: [

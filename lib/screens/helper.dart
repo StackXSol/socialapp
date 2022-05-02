@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/widgets.dart';
+
+import '../main.dart';
 
 class HelperPage extends StatelessWidget {
   const HelperPage({Key? key}) : super(key: key);
@@ -27,17 +31,25 @@ class HelperPage extends StatelessWidget {
                       style: TextStyle(fontSize: getheight(context, 30)),
                     ),
                     Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5),
+                    GestureDetector(
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        GoogleSignIn().signOut();
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Text("Sign Out")),
                       ),
-                      child: Padding(
-                          padding: EdgeInsets.all(5), child: Text("Sign Out")),
                     ),
                     SizedBox(width: getwidth(context, 10)),
                     Column(
-                      children: [Text("Hello,"), Text("Username")],
+                      children: [Text("Hello,"), Text(appuser.name)],
                     ),
                     SizedBox(width: 10),
                     CircleAvatar(
