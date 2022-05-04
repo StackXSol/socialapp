@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/main.dart';
@@ -47,7 +48,13 @@ class _RecentChatsState extends State<RecentChats> {
               ? "Image File"
               : "Document File"
           : key1.docs.last.data()["msg"];
+      dynamic fcm_key = await FirebaseFirestore.instance
+          .collection("Users")
+          .doc(i.data()["Reciever"])
+          .get();
+      String rec_fcm = await fcm_key.data()["Fcm_Token"];
       chats.add(_Chat(
+          fcm: rec_fcm,
           sender: i.data()["Sender"],
           cid: i.data()["cid"],
           reciever: i.data()["Reciever"],
@@ -191,9 +198,10 @@ class _Chat extends StatelessWidget {
       required this.reciever,
       required this.name,
       required this.cid,
+      required this.fcm,
       required this.lastmsg});
 
-  String sender, reciever, name, lastmsg, cid;
+  String sender, reciever, name, lastmsg, cid, fcm;
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +211,12 @@ class _Chat extends StatelessWidget {
             context,
             MaterialPageRoute(
                 builder: (context) => MainChat(
-                    cid: cid, name: name, reciever: reciever, sender: sender)));
+                      cid: cid,
+                      name: name,
+                      reciever: reciever,
+                      sender: sender,
+                      rec_fcm: fcm,
+                    )));
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -296,6 +309,7 @@ class New_Chat extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         _emailcontro.text = "xyz...";
+        // My account data writing
         await FirebaseFirestore.instance
             .collection("Users")
             .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -311,7 +325,9 @@ class New_Chat extends StatelessWidget {
               "-" +
               uid.toString(),
           "Sender": FirebaseAuth.instance.currentUser!.uid.toString()
-        });
+        }, SetOptions(merge: true));
+
+        //Receiver account data Writing
         await FirebaseFirestore.instance
             .collection("Users")
             .doc(uid)
@@ -326,8 +342,13 @@ class New_Chat extends StatelessWidget {
               "-" +
               uid.toString(),
           "Reciever_Name": appuser.name,
-          "Sender": uid
-        });
+          "Sender": uid,
+        }, SetOptions(merge: true));
+
+        dynamic fcm_key =
+            await FirebaseFirestore.instance.collection("Users").doc(uid).get();
+        String rec_fcm = await fcm_key.data()["Fcm_Token"];
+
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -337,6 +358,7 @@ class New_Chat extends StatelessWidget {
                         uid.toString(),
                     name: name,
                     reciever: uid,
+                    rec_fcm: rec_fcm,
                     sender: FirebaseAuth.instance.currentUser!.uid)));
       },
       child: Column(

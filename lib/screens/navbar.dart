@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socialapp/screens/contact_list.dart';
@@ -6,6 +8,8 @@ import 'package:socialapp/screens/homepage.dart';
 import 'package:socialapp/screens/profile.dart';
 import 'package:socialapp/screens/recent_chats.dart';
 import 'package:socialapp/widgets.dart';
+
+import '../main.dart';
 // import 'package:socialapp/screens/contact_list.dart';
 // import 'package:socialapp/screens/profile_screen.dart';
 
@@ -25,6 +29,22 @@ class _MainNavState extends State<MainNav> {
     Profile(),
     HelperPage()
   ];
+
+  Future<void> set_fcm() async {
+    FirebaseMessaging.instance.getToken().then((value) async {
+      String? token = value;
+      FirebaseFirestore.instance
+          .collection("Users")
+          .doc(appuser.uid)
+          .set({"Fcm_Token": token}, SetOptions(merge: true));
+    });
+  }
+
+  @override
+  void initState() {
+    set_fcm();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

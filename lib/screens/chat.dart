@@ -1,5 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,8 +18,9 @@ class MainChat extends StatefulWidget {
       {required this.name,
       required this.reciever,
       required this.sender,
+      required this.rec_fcm,
       required this.cid});
-  String name, reciever, sender, cid;
+  String name, reciever, sender, cid, rec_fcm;
   @override
   State<MainChat> createState() => _MainChatState();
 }
@@ -29,6 +31,36 @@ class _MainChatState extends State<MainChat> {
   String type = "text";
   String docname = "";
   late File file;
+
+  Future<void> send_noti(
+      String token, String message, String sender_name, String senderid) async {
+    print("Sending Notification");
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'key=' +
+          "AAAACXteovI:APA91bGjhg0aVlHU5b09RvgHKaC3cY3fEwELv4ofzmjkKlilr2S3aJs3rqvzP55JFBUCDlm8ksOCHypKkqe6bfGTMp8O-zsi_c7_8TQd2IS6VjvdscMBMjoJRSzo-ftmMp42KOuw90lD",
+    };
+    final body = {
+      'notification': {
+        'title': sender_name,
+        'body': message,
+      },
+      'to': token,
+      'priority': 'high',
+      'data': {"id": senderid},
+    };
+    final encoding = Encoding.getByName('utf-8');
+    final uri = Uri.parse('https://fcm.googleapis.com/fcm/send');
+
+    var response = await http.post(
+      uri,
+      headers: headers,
+      body: json.encode(body),
+      encoding: encoding,
+    );
+    print(response.body);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,6 +116,11 @@ class _MainChatState extends State<MainChat> {
             SizedBox(),
             IconButton(
                 onPressed: () async {
+                  send_noti(
+                      widget.rec_fcm,
+                      type == "Text" ? msgcontro.text : "New Message!",
+                      appuser.name,
+                      widget.sender);
                   if (type == "Text") {
                     FirebaseFirestore.instance
                         .collection("Users")
@@ -224,7 +261,7 @@ class _MainChatState extends State<MainChat> {
                   ),
                   SizedBox(width: getwidth(context, 10)),
                   Column(
-                    children: [Text("Hello,"), Text("appuser.name")],
+                    children: [Text("Hello,"), Text(appuser.name)],
                   ),
                   SizedBox(width: 10),
                   CircleAvatar(
@@ -434,20 +471,19 @@ class Sender_doc_block extends StatelessWidget {
               SizedBox(
                 width: 10,
               ),
-              Text(
-                name,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16),
+              FittedBox(
+                child: Text(name,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                    )),
               ),
               IconButton(
                   onPressed: () async {
-                    // PDFDocument doc = await PDFDocument.fromURL(url);
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => Pdf_Viewer(doc: "doc")));
+                            builder: (context) => Pdf_Viewer(doc: url)));
                   },
                   icon: Icon(
                     Icons.download,
@@ -485,16 +521,19 @@ class Reciever_doc_block extends StatelessWidget {
               SizedBox(
                 width: 10,
               ),
-              Text(
-                name,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16),
+              FittedBox(
+                child: Text(name,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                    )),
               ),
               IconButton(
                   onPressed: () async {
-                    // PDFDocument doc = await PDFDocument.fromURL(url);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Pdf_Viewer(doc: url)));
                   },
                   icon: Icon(
                     Icons.download,

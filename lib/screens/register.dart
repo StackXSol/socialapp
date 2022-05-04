@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:socialapp/backend-data.dart';
 import 'package:socialapp/main.dart';
+import 'package:socialapp/screens/navbar.dart';
 
 import 'package:socialapp/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -124,9 +125,7 @@ class _RegisterState extends State<Register> {
                 ),
                 GestureDetector(
                     onTap: () async {
-                      setState(() {
-                        showSpinner = true;
-                      });
+                      Fluttertoast.showToast(msg: "Registering...");
                       try {
                         if (name != "" && email != "" && pass != "") {
                           FirebaseAuth.instance
@@ -150,23 +149,11 @@ class _RegisterState extends State<Register> {
                               name: name,
                               email: email,
                               uid: FirebaseAuth.instance.currentUser!.uid);
-                          setState(() {
-                            showSpinner = false;
-                          });
-                          Navigator.pushNamed(
-                            context,
-                            '/navbar',
-                          );
+                          Navigator.pushReplacementNamed(context, "/navbar");
                         } else {
-                          setState(() {
-                            showSpinner = false;
-                          });
                           Fluttertoast.showToast(msg: "Enter all fields");
                         }
                       } on FirebaseAuthException catch (e) {
-                        setState(() {
-                          showSpinner = false;
-                        });
                         Fluttertoast.showToast(msg: e.message.toString());
                       }
                     },
@@ -227,6 +214,11 @@ class _RegisterState extends State<Register> {
                       },
                       SetOptions(merge: true),
                     );
+                    appuser = await current_user(
+                        name: user.displayName!,
+                        email: user.email!,
+                        uid: user.uid);
+                    Navigator.pushReplacementNamed(context, "/navbar");
                   },
                 ),
               ],

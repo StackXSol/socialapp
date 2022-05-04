@@ -1,11 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:socialapp/main.dart';
 import 'package:socialapp/widgets.dart';
 
-class Profile extends StatelessWidget {
-  const Profile({Key? key}) : super(key: key);
+class Profile extends StatefulWidget {
+  Profile({Key? key}) : super(key: key);
+
+  @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
+  String phone = appuser.phone, name = appuser.name;
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +189,9 @@ class Profile extends StatelessWidget {
                                   color: Color(0xFF2DA5F5).withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(5)),
                               child: TextField(
+                                onChanged: (val) {
+                                  name = val;
+                                },
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(0),
@@ -199,6 +211,7 @@ class Profile extends StatelessWidget {
                                   color: Color(0xFF2DA5F5).withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(5)),
                               child: TextField(
+                                enabled: false,
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(0),
@@ -218,6 +231,7 @@ class Profile extends StatelessWidget {
                                   color: Color(0xFF2DA5F5).withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(5)),
                               child: TextField(
+                                onChanged: (value) => phone = value,
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(0),
@@ -225,13 +239,23 @@ class Profile extends StatelessWidget {
                                     enabledBorder: InputBorder.none,
                                     errorBorder: InputBorder.none,
                                     disabledBorder: InputBorder.none,
-                                    hintText: "+91-8200238434"),
+                                    hintText: appuser.phone),
                               ),
                             ),
                             SizedBox(height: getheight(context, 40)),
                             GestureDetector(
-                              onTap: () {
-                                //Save data
+                              onTap: () async {
+                                Fluttertoast.showToast(msg: "Saving Profile!");
+
+                                appuser.name = await name;
+                                appuser.phone = await phone;
+
+                                await FirebaseFirestore.instance
+                                    .collection("Users")
+                                    .doc(appuser.uid)
+                                    .set({"Name": name, "Phone": phone},
+                                        SetOptions(merge: true));
+                                setState(() {});
                               },
                               child: Center(
                                 child: Container(

@@ -99,39 +99,29 @@ class _LogInState extends State<LogIn> {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    setState(() {
-                      showSpinner = true;
-                    });
                     try {
                       if (email != "" && pass != "") {
-                        FirebaseAuth.instance
-                            .signInWithEmailAndPassword(
-                                email: email, password: pass)
-                            .then((value) async {
-                          dynamic key = await FirebaseFirestore.instance
-                              .collection("Users")
-                              .doc(FirebaseAuth.instance.currentUser!.uid)
-                              .get();
-                          appuser = current_user(
-                              name: key.data()["Email"],
-                              email: email,
-                              uid: FirebaseAuth.instance.currentUser!.uid);
-                          Navigator.pushNamed(context, "/navbar");
-                        });
-                        setState(() {
-                          showSpinner = false;
-                        });
+                        FirebaseAuth.instance.signInWithEmailAndPassword(
+                            email: email, password: pass);
+
+                        dynamic key = await FirebaseFirestore.instance
+                            .collection("Users")
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .get();
+                        print(FirebaseAuth.instance.currentUser!.uid);
+
+                        appuser = current_user(
+                            name: key.data()["Email"],
+                            email: email,
+                            uid: FirebaseAuth.instance.currentUser!.uid);
+
+                        Navigator.pushNamed(context, "/navbar");
                       } else {
-                        setState(() {
-                          showSpinner = false;
-                        });
                         Fluttertoast.showToast(msg: "Enter email and password");
                       }
-                    } on FirebaseAuthException catch (e) {
-                      setState(() {
-                        showSpinner = false;
-                      });
-                      Fluttertoast.showToast(msg: e.message.toString());
+                    } catch (e) {
+                      print("error");
+                      Fluttertoast.showToast(msg: "No user Exists!");
                     }
                   },
                   child: Container(
